@@ -2,11 +2,11 @@
 #define __ASMARM_ARCH_TIMER_H
 
 #include <linux/ioport.h>
-#include <linux/clocksource.h>
 
 struct arch_timer {
 	struct resource	res[2];
 };
+#include <linux/clocksource.h>
 
 #ifdef CONFIG_ARM_ARCH_TIMER
 int arch_timer_register(struct arch_timer *);
