@@ -460,10 +460,10 @@ int __init arch_timer_register(struct arch_timer *at)
 	if (at->res[0].start <= 0 || !(at->res[0].flags & IORESOURCE_IRQ))
 		return -EINVAL;
 
-	arch_timer_ppi = at->res[0].start;
+	arch_timer_ppi[PHYS_NONSECURE_PPI] = at->res[0].start;
 
 	if ((at->res[1].start > 0) && (at->res[1].flags & IORESOURCE_IRQ))
-		arch_timer_ppi2 = at->res[1].start;
+		arch_timer_ppi[VIRT_PPI] = at->res[1].start;
 
 	if ((at->res[1].start > 0) && (at->res[1].flags & IORESOURCE_MEM))
 		arch_timer_rate = at->res[1].start;
