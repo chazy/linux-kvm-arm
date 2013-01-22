@@ -590,6 +590,7 @@ struct kvm_ppc_pvinfo {
 #define KVM_CAP_S390_UCONTROL 73
 #define KVM_CAP_SYNC_REGS 74
 #define KVM_CAP_PCI_2_3 75
+#define KVM_CAP_ARM_SET_DEVICE_ADDR 85
 #define KVM_CAP_ARM_PSCI 86
 
 #ifdef KVM_CAP_IRQ_ROUTING
@@ -721,6 +722,11 @@ struct kvm_one_reg {
 	__u64 addr;
 };
 
+struct kvm_arm_device_addr {
+	__u64 id;
+	__u64 addr;
+};
+
 /*
  * ioctls for VM fds
  */
@@ -795,6 +801,8 @@ struct kvm_s390_ucas_mapping {
 /* Available with KVM_CAP_PCI_2_3 */
 #define KVM_ASSIGN_SET_INTX_MASK  _IOW(KVMIO,  0xa4, \
 				       struct kvm_assigned_pci_dev)
+/* Available with KVM_CAP_ARM_SET_DEVICE_ADDR */
+#define KVM_ARM_SET_DEVICE_ADDR	  _IOW(KVMIO,  0xab, struct kvm_arm_device_addr)
 
 /*
  * ioctls for vcpu fds
