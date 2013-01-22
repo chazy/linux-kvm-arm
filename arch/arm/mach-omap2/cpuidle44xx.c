@@ -45,9 +45,6 @@ static struct omap4_idle_statedata omap4_idle_data[OMAP4_NUM_STATES];
 static struct powerdomain *mpu_pd, *cpu_pd[NR_CPUS];
 static struct clockdomain *cpu_clkdm[NR_CPUS];
 
-static atomic_t abort_barrier;
-static bool cpu_done[NR_CPUS];
-
 /**
  * omap4_enter_idle_coupled_[simple/coupled] - OMAP4 cpuidle entry functions
  * @dev: cpuidle device
@@ -69,6 +66,9 @@ static int omap4_enter_idle_simple(struct cpuidle_device *dev,
 	return index;
 }
 
+#ifdef CONFIG_SMP
+static atomic_t abort_barrier;
+static bool cpu_done[NR_CPUS];
 static int omap4_enter_idle_coupled(struct cpuidle_device *dev,
 			struct cpuidle_driver *drv,
 			int index)
@@ -153,6 +153,7 @@ fail:
 
 	return index;
 }
+#endif
 
 static DEFINE_PER_CPU(struct cpuidle_device, omap4_idle_dev);
 
@@ -170,9 +171,11 @@ static inline void _fill_cstate(struct cpuidle_driver *drv,
 	state->exit_latency	= cpuidle_params_table[idx].exit_latency;
 	state->target_residency	= cpuidle_params_table[idx].target_residency;
 	state->flags		= (CPUIDLE_FLAG_TIME_VALID | flags);
+#ifdef CONFIG_SMP
 	if (state->flags & CPUIDLE_FLAG_COUPLED)
 		state->enter		= omap4_enter_idle_coupled;
 	else
+#endif
 		state->enter		= omap4_enter_idle_simple;
 	sprintf(state->name, "C%d", idx + 1);
 	strncpy(state->desc, descr, CPUIDLE_DESC_LEN);
@@ -223,7 +226,9 @@ int __init omap4_idle_init(void)
 		dev = &per_cpu(omap4_idle_dev, cpu_id);
 		dev->cpu = cpu_id;
 		dev->state_count = 0;
+#ifdef CONFIG_SMP
 		dev->coupled_cpus = *cpu_online_mask;
+#endif
 		drv.state_count = 0;
 
 		/* C1 - CPU0 ON + CPU1 ON + MPU ON */

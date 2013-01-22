@@ -122,6 +122,7 @@ static int omap5_enter_idle(struct cpuidle_device *dev,
 	return index;
 }
 
+#ifdef CONFIG_SMP
 static int omap5_enter_couple_idle(struct cpuidle_device *dev,
 			struct cpuidle_driver *drv,
 			int index)
@@ -198,6 +199,7 @@ fail:
 
 	return index;
 }
+#endif
 
 static DEFINE_PER_CPU(struct cpuidle_device, omap5_idle_dev);
 
@@ -216,9 +218,11 @@ static inline void _fill_cstate(struct cpuidle_driver *drv,
 	state->target_residency	= cpuidle_params_table[idx].target_residency;
 	state->disable	= !cpuidle_params_table[idx].valid;
 	state->flags            = (CPUIDLE_FLAG_TIME_VALID | flags);
+#ifdef CONFIG_SMP
 	if (state->flags & CPUIDLE_FLAG_COUPLED)
 		state->enter		= omap5_enter_couple_idle;
 	else
+#endif
 		state->enter		= omap5_enter_idle;
 
 	sprintf(state->name, "C%d", drv->state_count + 1);
@@ -324,7 +328,9 @@ int __init omap5_idle_init(void)
 		dev->cpu = cpu_id;
 		dev->state_count = 0;
 		drv.state_count = 0;
+#ifdef CONFIG_SMP
 		dev->coupled_cpus = *cpu_online_mask;
+#endif
 
 		/* C1 - CPU0 ON + CPU1 ON + MPU ON + CORE ON */
 		_fill_cstate(&drv, 0, "MPUSS ON + CORE ON", 0);
